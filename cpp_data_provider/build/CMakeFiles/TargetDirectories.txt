@@ -1,3 +1,0 @@
-/home/zxq/FinAgent-Quant/cpp_data_provider/build/CMakeFiles/data_provider.dir
-/home/zxq/FinAgent-Quant/cpp_data_provider/build/CMakeFiles/edit_cache.dir
-/home/zxq/FinAgent-Quant/cpp_data_provider/build/CMakeFiles/rebuild_cache.dir
