@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  agent_node:
+    build: .
+    container_name: finagent_quant_node
+    restart: always  # 崩溃自动重启
+    network_mode: "host" # 与 C++ 宿主机共享网络，方便 localhost gRPC 通信
+    env_file:
+      - .env
+    volumes:
+      # 将本地的记忆库挂载到容器内，保证重启不丢数据
+      - ./quant_memory_db:/app/quant_memory_db
+      # (可选) 将日志挂载出来
+      # - ./logs:/app/logs

@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package finagent;
+
+import "google/protobuf/timestamp.proto";
+
+// --- 基础数据结构 ---
+
+// 实时行情数据 (由 C++ 侧高频推送)
+message MarketData {
+    string symbol = 1;          // 股票/品种代码 (如: NVDA, BTC)
+    double price = 2;           // 当前价格
+    double volume = 3;          // 成交量
+    double change_percent = 4;  // 涨跌幅
+    google.protobuf.Timestamp timestamp = 5;
+}
+
+// 实时非结构化资讯 (研报、新闻、推特)
+message FinancialNews {
+    string source = 1;          // 来源 (Bloomberg, Reuters, Snowball)
+    string title = 2;
+    string content = 3;         // 全文或摘要
+    repeated string tags = 4;   // 原始标签
+    int32 importance = 5;       // 采集侧初步判定的重要度 (1-10)
+    google.protobuf.Timestamp timestamp = 6;
+}
+
+// --- 智能体任务编排 ---
+
+// Agent 分析请求
+message AnalysisRequest {
+    string task_id = 1;
+    oneof data_payload {
+        MarketData market_data = 2;
+        FinancialNews news_data = 3;
+    }
+    string instruction = 4;     // 给 Agent 的特定指令
+}
+
+// Agent 分析结果
+message AnalysisResponse {
+    string task_id = 1;
+    string agent_id = 2;        // 哪个 Agent 输出的 (Macro, Tech, Risk)
+    float sentiment_score = 3;  // 情感极性 (-1.0 to 1.0)
+    string summary = 4;         // 结构化摘要
+    repeated string key_actions = 5; // 建议的操作项
+    bool risk_flag = 6;         // 是否触发风险预警
+}
+
+// 最终交易决策
+message TradeSignal {
+    string symbol = 1;
+    enum Action {
+        HOLD = 0;
+        BUY = 1;
+        SELL = 2;
+    }
+    Action action = 2;
+    double target_price = 3;
+    double stop_loss = 4;
+    string reasoning = 5;       // 决策依据（用于可解释性 AI 审计）
+}
+
+// --- 服务接口定义 ---
+
+service FinAgentService {
+    // 1. 服务端流：C++ 侧不断推送行情和资讯，Python 侧 Agent 监听
+    rpc StreamFinancialData(Empty) returns (stream DataEnvelope);
+
+    // 2. 双向流：Agent 之间的任务分发与反馈协同
+    rpc CoordinateTask(stream AnalysisRequest) returns (stream AnalysisResponse);
+
+    // 3. 简单 RPC：下达交易指令
+    rpc ExecuteTrade(TradeSignal) returns (TradeResponse);
+}
+
+message DataEnvelope {
+    oneof payload {
+        MarketData market = 1;
+        FinancialNews news = 2;
+    }
+}
+
+message Empty {}
+message TradeResponse {
+    bool success = 1;
+    string order_id = 2;
+    string error_msg = 3;
+}
