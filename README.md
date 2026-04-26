@@ -115,8 +115,3 @@ This project is for **educational and research purposes only**. The trading sign
 ```
 
 ***
-
-<Elicitations message="这份 README 已经足以让任何访问你 GitHub 的资深开发者眼前一亮了。接下来你想做点什么？">
-  <Elicitation label="优化 Git 提交" query="帮我写一段专业的 Git Commit Message，用来提交这次包括 C++ gRPC、Docker 容器化、多智能体和 RAG 在内的重大重构版本。" />
-  <Elicitation label="开发 Web 监控大屏" query="现在日志只能在终端里看，有什么技术栈可以快速帮我写一个 Web 页面，实时显示 C++ 推送的数据和 AI 两个智能体的聊天/驳回过程？" />
-</Elicitations>
